@@ -1,14 +1,65 @@
 const key = '73fe2827b9f6a20adf8a5966784c333a';
 //q={city name}&appid={your api key}
-const baseUrl = 'api.openweathermap.org/data/2.5/weather?';
+function getWeatherData(cityName) {
+    // update stored city list with the new name
+    updateCities(cityName);
+    
+    // redraw the list of cities
+    createCityList();
+
+    // query api for the current day data needed
+    const currentDayURL = createCurrentDayRequestUrl(cityName);
+    getCurrentDay(currentDayURL, cityName);
+    const fiveDayForecastUrl = create5DayForecastUrl(cityName);
+    get5DayForecast(fiveDayForecastUrl);
+}
+
+function get5DayForecast(requestURL) {
+    fetch(requestURL).then(response => response.json())
+    .then(obj => {
+        console.log(obj);
+    }); 
+}
+
+function create5DayForecastUrl(cityName) {
+    return `https://api.openweathermap.org/data/2.5/forecast?appid=${key}&q=${cityName}`;
+}
+
+function getCurrentDay(requestURL, cityName) {
+    fetch(requestURL).then(response => response.json())
+    .then(obj => {
+        //query for the uv index
+        const uvURL = createUvRequestUrl(obj.coord);
+        fetch(uvURL).then(response => response.json())
+        .then(res => {
+            const currentWeatherData = bundleCurrentWeatherData(obj, cityName, res.value);
+            // add current day's weather data to the site
+            addCurrentWeatherElement(currentWeatherData);
+        });
+    });
+}
+
+function bundleCurrentWeatherData(obj, cityName, uv) {
+    return {
+        temp: obj.main.temp,
+        humidity: obj.main.temp,
+        wind: obj.wind.speed,
+        name: cityName,
+        uv: uv
+    };
+}
+
+function createCurrentDayRequestUrl(cityName) {
+    return `https://api.openweathermap.org/data/2.5/weather?units=imperial&appid=${key}&q=${cityName}`;
+}
+
+function createUvRequestUrl(location) {
+    return `https://api.openweathermap.org/data/2.5/uvi?appid=${key}&lat=${location.lat}&lon=${location.lon}`;
+}
 
 function createCityList() {
     const cityElements = getCityList().map(cityName => `<li>${cityName}</li>`).join('');
-    $('#city-list').append(cityElements);
-}
-
-function createCityElement(cityName) {
-    return `<li>${cityName}</li>\n`;
+    $('#city-list').empty().append(cityElements);
 }
 
 function createCards(cardData) {
@@ -17,29 +68,60 @@ function createCards(cardData) {
 }
 
 function createCardElement(cardData) {
-    return `<div class="card">
-    <ul>
-        <li>
-            ${cardData.date}
-        </li>
-        <li>
-            (sun)
-        </li>
-        <li>
-            Temp: ${cardData.temp}°F
-        </li>
-        <li>
-            Humitity: ${cardData.humidity}%
-        </li>
-    </ul>
-</div>`;
+    return `
+    <div class="card">
+        <ul>
+            <li>
+                ${cardData.date}
+            </li>
+            <li>
+                (sun)
+            </li>
+            <li>
+                Temp: ${cardData.temp}&#xb0;F
+            </li>
+            <li>
+                Humidity: ${cardData.humidity}%
+            </li>
+        </ul>
+    </div>`;
 }
 
-function updateCities(cityName, cities) {
+function addCurrentWeatherElement(weatherData) {
+    $('#current-weather').empty().append(createCurrentWeatherElement(weatherData));
+}
+
+function createCurrentWeatherElement(weatherData) {
+    return `
+    <h2>
+        ${weatherData.name} (${(new Date()).toLocaleDateString()})(cloud)
+    </h2>
+    <ul>
+        <li>
+            Temperature: ${weatherData.temp}&#xb0;F
+        </li>
+        <li>
+            Humidity: ${weatherData.humidity}%
+        </li>
+        <li>
+            Wind Speed: ${weatherData.wind} MPH
+        </li>
+        <li>
+            UV index: <span class="uv">${weatherData.uv}</span>
+        </li>
+    </ul>`;
+}
+
+function updateCities(cityName) {
+    const cities = updateCitiesArray(cityName, getCityList());
+    setCityList(cities);
+}
+
+function updateCitiesArray(cityName, cities) {
     // if cities name alredy exists, filter it from its current index
     // to not have redundancies in the city history
     // and return new list with the city put in front
-    return [cityName, ...cities.filter(city => city == cityName)];
+    return [cityName, ...cities.filter(city => city !== cityName)];
 }
 
 function getCityList() {
@@ -58,6 +140,11 @@ document.addEventListener("DOMContentLoaded", createCityList);
 // add an event for the city list that can change behavior 
 // using the event targets
 document.querySelector('#city-list').addEventListener('click', (e) => {
-    console.log(e.target.innerText)
+    getWeatherData(e.target.innerText);
 });
 
+// event handler for search button
+document.querySelector('button').addEventListener('click', () => {
+    const city = document.querySelector('input').value;
+    getWeatherData(city);
+});
