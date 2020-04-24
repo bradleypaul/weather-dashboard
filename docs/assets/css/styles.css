@@ -88,7 +88,6 @@ aside ul:last-child  {
 .card-deck {
     display: flexbox;
     flex-direction: row;
-
 }
 
 .card {
