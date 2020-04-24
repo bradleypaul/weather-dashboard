@@ -11,5 +11,42 @@ header {
 
 header h1 {
     margin: 0;
-    padding: 15px;
+    padding: 10px;
+}
+
+button {
+    color: white;
+    background-color: royalblue;
+    border: 0;
+    height: auto;
+}
+
+aside {
+    background-color: rgb(247, 244, 244);
+}
+
+aside h3 {
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+aside input[type="text"] {
+    border-radius: 5px;
+    border: none;
+}
+
+ul {
+    list-style: none;
+}
+
+#current-weather {
+    border-top: 2px solid;
+    border-left: 2px solid;
+    border-bottom: 2px solid;
+    border-radius: 5px;
+    border-color:  rgb(247, 244, 244);
+}
+
+#current-weather h2 {
+    padding: 20px;
 }
