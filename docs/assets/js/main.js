@@ -1,5 +1,5 @@
 const key = '73fe2827b9f6a20adf8a5966784c333a';
-//q={city name}&appid={your api key}
+
 function getWeatherData(cityName) {
     // update stored city list with the new name
     updateCities(cityName);
@@ -17,36 +17,56 @@ function getWeatherData(cityName) {
 function get5DayForecast(requestURL) {
     fetch(requestURL).then(response => response.json())
     .then(obj => {
-        console.log(obj);
+        console.log(obj)
+        const cardData = obj.list.filter((item, index) => {
+            // filter out all parts that aren't a multiple of 8 starting
+            // at zero. 8 because 24 hours in a day / 3 hour reports = 8
+            return index % 8 == 0;
+        }).map((item, index) => {
+            // bundle the data up all nice and snug :)
+            return bundle5DayData(item, obj.city.name);
+        });
+        createCards(cardData)
+
     }); 
 }
 
 function create5DayForecastUrl(cityName) {
-    return `https://api.openweathermap.org/data/2.5/forecast?appid=${key}&q=${cityName}`;
+    return `https://api.openweathermap.org/data/2.5/forecast?appid=${key}&q=${cityName}&units=imperial`;
 }
 
 function getCurrentDay(requestURL, cityName) {
     fetch(requestURL).then(response => response.json())
     .then(obj => {
         //query for the uv index
+        console.log(obj)
         const uvURL = createUvRequestUrl(obj.coord);
         fetch(uvURL).then(response => response.json())
         .then(res => {
-            const currentWeatherData = bundleCurrentWeatherData(obj, cityName, res.value);
+            const currentWeatherData = bundleCurrentWeatherData(obj, res.value);
             // add current day's weather data to the site
             addCurrentWeatherElement(currentWeatherData);
         });
     });
 }
 
-function bundleCurrentWeatherData(obj, cityName, uv) {
+function bundleCurrentWeatherData(obj, uv) {
     return {
         temp: obj.main.temp,
         humidity: obj.main.temp,
         wind: obj.wind.speed,
-        name: cityName,
-        uv: uv
+        name: obj.name,
+        uv: uv,
+        date: (new Date()).toLocaleDateString()
     };
+}
+
+function bundle5DayData(obj) {
+    return {
+        date: (new Date(obj.dt_txt)).toLocaleDateString(),
+        temp: obj.main.temp,
+        humidity: obj.main.humidity
+    }
 }
 
 function createCurrentDayRequestUrl(cityName) {
@@ -63,25 +83,25 @@ function createCityList() {
 }
 
 function createCards(cardData) {
-    const cardElements = cardData.map(createCard).join('');
-    $('.card-deck').append(cardElements);
+    const cardElements = cardData.map(createCardElement).join('');
+    $('.card-deck').empty().append(cardElements);
 }
 
-function createCardElement(cardData) {
+function createCardElement(data) {
     return `
     <div class="card">
         <ul>
             <li>
-                ${cardData.date}
+                ${data.date}
             </li>
             <li>
                 (sun)
             </li>
             <li>
-                Temp: ${cardData.temp}&#xb0;F
+                Temp: ${data.temp}&#xb0;F
             </li>
             <li>
-                Humidity: ${cardData.humidity}%
+                Humidity: ${data.humidity}%
             </li>
         </ul>
     </div>`;
@@ -91,23 +111,23 @@ function addCurrentWeatherElement(weatherData) {
     $('#current-weather').empty().append(createCurrentWeatherElement(weatherData));
 }
 
-function createCurrentWeatherElement(weatherData) {
+function createCurrentWeatherElement(data) {
     return `
     <h2>
-        ${weatherData.name} (${(new Date()).toLocaleDateString()})(cloud)
+        ${data.name} (${data.date})(cloud)
     </h2>
     <ul>
         <li>
-            Temperature: ${weatherData.temp}&#xb0;F
+            Temperature: ${data.temp}&#xb0;F
         </li>
         <li>
-            Humidity: ${weatherData.humidity}%
+            Humidity: ${data.humidity}%
         </li>
         <li>
-            Wind Speed: ${weatherData.wind} MPH
+            Wind Speed: ${data.wind} MPH
         </li>
         <li>
-            UV index: <span class="uv">${weatherData.uv}</span>
+            UV index: <span class="uv">${data.uv}</span>
         </li>
     </ul>`;
 }
