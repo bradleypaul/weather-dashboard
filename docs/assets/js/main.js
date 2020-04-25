@@ -156,6 +156,11 @@ function setCityList(cities) {
     localStorage.setItem('cities', JSON.stringify(cities));
 }
 
+function buttonDown() {
+    const city = document.querySelector('input').value;
+    getWeatherData(city);
+}
+
 // wait for DOM to load, then populate the city list
 document.addEventListener("DOMContentLoaded", createCityList);
 
@@ -166,7 +171,12 @@ document.querySelector('#city-list').addEventListener('click', (e) => {
 });
 
 // event handler for search button
-document.querySelector('button').addEventListener('click', () => {
-    const city = document.querySelector('input').value;
-    getWeatherData(city);
-});
+document.querySelector('button').addEventListener('click', buttonDown);
+
+// Add event listener for user pressing enter key
+document.addEventListener("keyup", function (event) {
+    if (event.keyCode === 13) {
+      event.preventDefault();
+      buttonDown();
+    }
+  });
