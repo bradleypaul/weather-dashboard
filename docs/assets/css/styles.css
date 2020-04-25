@@ -72,17 +72,12 @@ aside ul li {
     border-top: 1px solid;
     border-color:  rgb(182, 182, 182);
 }
+
 aside ul:first-child {
     border-top: 2px solid;
     border-color: rgb(182, 182, 182);
 
     border-radius: 5px 5px 0 0;
-}
-aside ul:last-child  {
-    border-bottom: 1px solid;
-    border-color: rgb(182, 182, 182);
-
-    /* border-radius: 0 0 5px 5px; */
 }
 
 .card-deck {
