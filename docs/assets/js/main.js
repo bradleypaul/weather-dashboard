@@ -17,14 +17,11 @@ function getWeatherData(cityName) {
 function get5DayForecast(requestURL) {
     fetch(requestURL).then(response => response.json())
     .then(obj => {
-        const cardData = obj.list.filter((item, index) => {
-            // filter out indexes which line up with noon. 4 index offset so looking for mod 4
-            // at zero. 8 because 24 hours in a day / 3 hour reports = 8
-            return index % 8 == 4;
-        }).map((item, index) => {
-            // bundle the data up all nice and snug :)
-            return bundle5DayData(item, obj.city.name);
-        });
+        // filter out indexes which line up with noon. 4 index offset so looking for mod 4
+        // at zero. 8 because 24 hours in a day / 3 hour reports = 8
+        const cardData = obj.list
+          .filter((_, index) => index % 8 == 4)
+          .map(item => bundle5DayData(item, obj.city.name));
         createCardDeck(cardData)
     }); 
 }
