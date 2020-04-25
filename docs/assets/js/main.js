@@ -17,7 +17,6 @@ function getWeatherData(cityName) {
 function get5DayForecast(requestURL) {
     fetch(requestURL).then(response => response.json())
     .then(obj => {
-        console.log(obj)
         const cardData = obj.list.filter((item, index) => {
             // filter out all parts that aren't a multiple of 8 starting
             // at zero. 8 because 24 hours in a day / 3 hour reports = 8
@@ -26,8 +25,7 @@ function get5DayForecast(requestURL) {
             // bundle the data up all nice and snug :)
             return bundle5DayData(item, obj.city.name);
         });
-        createCards(cardData)
-
+        createCardDeck(cardData)
     }); 
 }
 
@@ -39,7 +37,6 @@ function getCurrentDay(requestURL, cityName) {
     fetch(requestURL).then(response => response.json())
     .then(obj => {
         //query for the uv index
-        console.log(obj)
         const uvURL = createUvRequestUrl(obj.coord);
         fetch(uvURL).then(response => response.json())
         .then(res => {
@@ -56,6 +53,8 @@ function bundleCurrentWeatherData(obj, uv) {
         humidity: obj.main.temp,
         wind: obj.wind.speed,
         name: obj.name,
+        icon: obj.weather[0].icon,
+        description: obj.weather[0].description,
         uv: uv,
         date: (new Date()).toLocaleDateString()
     };
@@ -65,7 +64,9 @@ function bundle5DayData(obj) {
     return {
         date: (new Date(obj.dt_txt)).toLocaleDateString(),
         temp: obj.main.temp,
-        humidity: obj.main.humidity
+        humidity: obj.main.humidity,
+        description: obj.weather[0].description,
+        icon: obj.weather[0].icon
     }
 }
 
@@ -82,9 +83,10 @@ function createCityList() {
     $('#city-list').empty().append(cityElements);
 }
 
-function createCards(cardData) {
-    const cardElements = cardData.map(createCardElement).join('');
-    $('.card-deck').empty().append(cardElements);
+function createCardDeck(cardData) {
+    const cards = cardData.map(createCardElement).join('');
+    const cardDeck = $('<div class="card-deck"></div>').append(cards);
+    $('#five-day-forecast').empty().append('<h2>5-Day Forecast:</h2>').append(cardDeck);
 }
 
 function createCardElement(data) {
@@ -95,7 +97,7 @@ function createCardElement(data) {
                 ${data.date}
             </li>
             <li>
-                (sun)
+            <img src="http://openweathermap.org/img/wn/${data.icon}.png" alt="${data.description}"/>
             </li>
             <li>
                 Temp: ${data.temp}&#xb0;F
@@ -114,7 +116,7 @@ function addCurrentWeatherElement(weatherData) {
 function createCurrentWeatherElement(data) {
     return `
     <h2>
-        ${data.name} (${data.date})(cloud)
+        ${data.name} (${data.date}) <img src="http://openweathermap.org/img/wn/${data.icon}@2x.png" alt="${data.description}"/></i>
     </h2>
     <ul>
         <li>
