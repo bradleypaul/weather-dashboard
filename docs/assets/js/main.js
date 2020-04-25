@@ -9,14 +9,15 @@ function getWeatherData(cityName) {
 
     // query api for the current day data needed
     const currentDayURL = createCurrentDayRequestUrl(cityName);
-    getCurrentDay(currentDayURL, cityName);
+    getCurrentDay(currentDayURL);
     const fiveDayForecastUrl = create5DayForecastUrl(cityName);
     get5DayForecast(fiveDayForecastUrl);
 }
 
 function get5DayForecast(requestURL) {
-    fetch(requestURL).then(response => response.json())
-    .then(obj => {
+    fetch(requestURL)
+      .then(response => response.json())
+      .then(obj => {
         // filter out indexes which line up with noon. 4 index offset so looking for mod 4
         // at zero. 8 because 24 hours in a day / 3 hour reports = 8
         const cardData = obj.list
@@ -30,13 +31,14 @@ function create5DayForecastUrl(cityName) {
     return `https://api.openweathermap.org/data/2.5/forecast?appid=${key}&q=${cityName}&units=imperial`;
 }
 
-function getCurrentDay(requestURL, cityName) {
-    fetch(requestURL).then(response => response.json())
-    .then(obj => {
+function getCurrentDay(requestURL) {
+    fetch(requestURL)
+      .then(response => response.json())
+      .then(obj => {
         //query for the uv index
         const uvURL = createUvRequestUrl(obj.coord);
         fetch(uvURL).then(response => response.json())
-        .then(res => {
+          .then(res => {
             const currentWeatherData = bundleCurrentWeatherData(obj, res.value);
             // add current day's weather data to the site
             addCurrentWeatherElement(currentWeatherData);
