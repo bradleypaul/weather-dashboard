@@ -45,7 +45,7 @@ li {
     padding-bottom: 5px;
 }
 
-#current-weather {
+.current-weather {
     margin-top: 10px;
     border-top: 2px solid;
     border-left: 2px solid;
@@ -54,7 +54,7 @@ li {
     border-color:  rgb(247, 244, 244);
 }
 
-#current-weather h2 {
+.current-weather h2 {
     padding: 15px;
 }
 
@@ -73,11 +73,15 @@ aside ul li {
     border-color:  rgb(182, 182, 182);
 }
 
-aside ul:first-child {
-    border-top: 2px solid;
+aside ul:last-child  {
+    border-bottom: 1px solid;
     border-color: rgb(182, 182, 182);
 
-    border-radius: 5px 5px 0 0;
+    /* border-radius: 0 0 5px 5px; */
+}
+
+aside ul:empty, .current-weather:empty {
+    border-style: none;
 }
 
 .card-deck {
