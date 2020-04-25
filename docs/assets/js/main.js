@@ -17,10 +17,11 @@ function getWeatherData(cityName) {
 function get5DayForecast(requestURL) {
     fetch(requestURL).then(response => response.json())
     .then(obj => {
+        console.log(obj)
         const cardData = obj.list.filter((item, index) => {
-            // filter out all parts that aren't a multiple of 8 starting
+            // filter out indexes which line up with noon. 4 index offset so looking for mod 4
             // at zero. 8 because 24 hours in a day / 3 hour reports = 8
-            return index % 8 == 0;
+            return index % 8 == 4;
         }).map((item, index) => {
             // bundle the data up all nice and snug :)
             return bundle5DayData(item, obj.city.name);
@@ -110,7 +111,7 @@ function createCardElement(data) {
 }
 
 function addCurrentWeatherElement(weatherData) {
-    $('#current-weather').empty().append(createCurrentWeatherElement(weatherData));
+    $('.current-weather').empty().append(createCurrentWeatherElement(weatherData));
 }
 
 function createCurrentWeatherElement(data) {
