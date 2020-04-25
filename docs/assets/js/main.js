@@ -17,7 +17,6 @@ function getWeatherData(cityName) {
 function get5DayForecast(requestURL) {
     fetch(requestURL).then(response => response.json())
     .then(obj => {
-        console.log(obj)
         const cardData = obj.list.filter((item, index) => {
             // filter out indexes which line up with noon. 4 index offset so looking for mod 4
             // at zero. 8 because 24 hours in a day / 3 hour reports = 8
