@@ -22,10 +22,8 @@ function getWeatherData(cityName) {
 function search(cityName) {
     // update stored city list with the new name
     updateCities(cityName);
-    
     // redraw the list of cities
     createCityList();
-
     getWeatherData(cityName);
 }
 
