@@ -29,30 +29,30 @@ function search(cityName) {
 
 function get5DayForecast(requestURL) {
     fetch(requestURL)
-      .then(response => response.json())
-      .then(obj => {
-        // filter out indexes which line up with noon. 4 index offset so looking for mod 4
-        // at zero. 8 because 24 hours in a day / 3 hour reports = 8
-        const cardData = obj.list
-          .filter((_, index) => index % 8 == 4)
-          .map(item => bundle5DayData(item, obj.city.name));
-        createCardDeck(cardData)
-    }); 
+        .then(response => response.json())
+        .then(obj => {
+            // filter out indexes which line up with noon. 4 index offset so looking for mod 4
+            // at zero. 8 because 24 hours in a day / 3 hour reports = 8
+            const cardData = obj.list
+                .filter((_, index) => index % 8 == 4)
+                .map(item => bundle5DayData(item, obj.city.name));
+            createCardDeck(cardData)
+        });
 }
 
 function getCurrentDay(requestURL) {
     fetch(requestURL)
-      .then(response => response.json())
-      .then(obj => {
-        //query for the uv index
-        const uvURL = createUvRequestUrl(obj.coord);
-        fetch(uvURL).then(response => response.json())
-          .then(res => {
-            const currentWeatherData = bundleCurrentWeatherData(obj, res.value);
-            // add current day's weather data to the site
-            addCurrentWeatherElement(currentWeatherData);
+        .then(response => response.json())
+        .then(obj => {
+            //query for the uv index
+            const uvURL = createUvRequestUrl(obj.coord);
+            fetch(uvURL).then(response => response.json())
+                .then(res => {
+                    const currentWeatherData = bundleCurrentWeatherData(obj, res.value);
+                    // add current day's weather data to the site
+                    addCurrentWeatherElement(currentWeatherData);
+                });
         });
-    });
 }
 
 function bundleCurrentWeatherData(obj, uv) {
@@ -179,7 +179,7 @@ document.querySelector('button').addEventListener('click', buttonDown);
 // Add event listener for user pressing enter key
 document.addEventListener("keyup", function (event) {
     if (event.keyCode === 13) {
-      event.preventDefault();
-      buttonDown();
+        event.preventDefault();
+        buttonDown();
     }
-  });
+});
