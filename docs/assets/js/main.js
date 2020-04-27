@@ -1,17 +1,32 @@
 const key = '73fe2827b9f6a20adf8a5966784c333a';
 
+function createCurrentDayRequestUrl(cityName) {
+    return `https://api.openweathermap.org/data/2.5/weather?units=imperial&appid=${key}&q=${cityName}`;
+}
+
+function createUvRequestUrl(location) {
+    return `https://api.openweathermap.org/data/2.5/uvi?appid=${key}&lat=${location.lat}&lon=${location.lon}`;
+}
+
+function create5DayForecastUrl(cityName) {
+    return `https://api.openweathermap.org/data/2.5/forecast?appid=${key}&q=${cityName}&units=imperial`;
+}
+
 function getWeatherData(cityName) {
+    const currentDayURL = createCurrentDayRequestUrl(cityName);
+    getCurrentDay(currentDayURL);
+    const fiveDayForecastUrl = create5DayForecastUrl(cityName);
+    get5DayForecast(fiveDayForecastUrl);
+}
+
+function search(cityName) {
     // update stored city list with the new name
     updateCities(cityName);
     
     // redraw the list of cities
     createCityList();
 
-    // query api for the current day data needed
-    const currentDayURL = createCurrentDayRequestUrl(cityName);
-    getCurrentDay(currentDayURL);
-    const fiveDayForecastUrl = create5DayForecastUrl(cityName);
-    get5DayForecast(fiveDayForecastUrl);
+    getWeatherData(cityName);
 }
 
 function get5DayForecast(requestURL) {
@@ -25,10 +40,6 @@ function get5DayForecast(requestURL) {
           .map(item => bundle5DayData(item, obj.city.name));
         createCardDeck(cardData)
     }); 
-}
-
-function create5DayForecastUrl(cityName) {
-    return `https://api.openweathermap.org/data/2.5/forecast?appid=${key}&q=${cityName}&units=imperial`;
 }
 
 function getCurrentDay(requestURL) {
@@ -67,14 +78,6 @@ function bundle5DayData(obj) {
         description: obj.weather[0].description,
         icon: obj.weather[0].icon
     }
-}
-
-function createCurrentDayRequestUrl(cityName) {
-    return `https://api.openweathermap.org/data/2.5/weather?units=imperial&appid=${key}&q=${cityName}`;
-}
-
-function createUvRequestUrl(location) {
-    return `https://api.openweathermap.org/data/2.5/uvi?appid=${key}&lat=${location.lat}&lon=${location.lon}`;
 }
 
 function createCityList() {
@@ -157,16 +160,19 @@ function setCityList(cities) {
 
 function buttonDown() {
     const city = document.querySelector('input').value;
-    getWeatherData(city);
+    search(city);
 }
 
 // wait for DOM to load, then populate the city list
-document.addEventListener("DOMContentLoaded", createCityList);
+document.addEventListener("DOMContentLoaded", () => {
+    createCityList();
+    getWeatherData(getCityList()[0]);
+});
 
 // add an event for the city list that can change behavior 
 // using the event targets
 document.querySelector('#city-list').addEventListener('click', (e) => {
-    getWeatherData(e.target.innerText);
+    search(e.target.innerText);
 });
 
 // event handler for search button
